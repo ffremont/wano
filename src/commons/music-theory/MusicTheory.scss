@@ -1,0 +1,64 @@
+.music-theory{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mt-container {
+    width: calc(100vw - 100px);
+    height: 260px;
+    overflow: hidden;
+    margin: 10px;
+}
+
+.mt-container>div {
+    /*width: 10000px;*/
+    height: 120px;
+    white-space: nowrap;
+}
+
+.mt-controls {
+    padding: 15px;
+}
+
+.mt-controls>button {
+    margin: 5px;
+}
+
+.scroll {
+    transition: transform 10s linear, opacity 0.5s ease-out, fill 0.2s linear;
+    /*animation: mtanimation 10s linear, opacity 0.5s ease-out, fill 0.2s linear;*/
+}
+
+.scrolling {
+   /* transform: translate(-1400px, 0);*/
+}
+
+.pause .scroll{
+    animation-play-state:paused !important;
+}
+
+.correct {
+    opacity: 0;
+}
+
+.too-slow {
+    /*transform: translate(-1400px, 2000px);*/
+}
+
+.limit-bar{
+    border-left: 1px solid red;
+    height: 200px !important;
+    position: absolute;
+    margin-left: 80px;
+    margin-top: 15px;
+}
+
+@keyframes mtanimation {
+    0% {
+        transform: translateX(-150px)
+    }
+    100%{
+        transform: translateX(  calc( -100% + 20px))
+    }
+  }
