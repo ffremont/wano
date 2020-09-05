@@ -18,6 +18,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.3",
+    "rxjs": "^6.6.2",
     "typescript": "^3.7.5",
     "vexflow": "^3.0.9",
     "webmidi": "^2.5.1"

@@ -1,4 +1,5 @@
 import WebMidi, { InputEventNoteon, InputEventNoteoff, Input } from 'webmidi';
+import {Subject, BehaviorSubject} from 'rxjs';
 
 export interface MidiPiano{
     label:string; // name + manufacturer
@@ -14,14 +15,25 @@ export interface MidiNote{
 /**
  * A(la), B(si), C(do), D(ré), E(mi), F(fa), G(sol)
  */
-class WebMidiService {
+export class WebMidiService {
 
-    pianoKeys: string[] = ['C', 'C#', 'D', 'D#','E','F','F#','G','G#','A','A#','B']
+    public static PIANO_KEYS: string[] = ['C', 'C#', 'D', 'D#','E','F','F#','G','G#','A','A#','B'];
 
     /**
      * Notes appuyées
      */
     currentNotes:MidiNote[] = [];
+
+    /**
+     * 
+     */
+    noteOnSubject = new Subject<MidiNote[]>();
+
+    /**
+     * 
+     */
+    pianoSubject = new BehaviorSubject<MidiPiano[]>([]);
+
 
     /**
      * Liste des pianos connectés
@@ -39,9 +51,11 @@ class WebMidiService {
                 WebMidi.addListener("connected", (e)  => {
                     if (e.port.type === 'input') {
                         this.pianos.push({
-                            label: `${e.port.name} / ${e.port.manufacturer}`,
+                            label: `${e.port.name}${e.port.manufacturer ? ' / '+e.port.manufacturer : ''}`,
                             id: e.port.id
                         });
+                        this.pianoSubject.next(this.pianos);
+
                         e.port.addListener("noteon", "all", (event: InputEventNoteon) => {
                             this.noteOn(<Input>(e.port), event);
                         })
@@ -57,38 +71,36 @@ class WebMidiService {
         });
     });
 
-    getPianos() : MidiPiano[]{
-        return this.pianos;
-    }
-
     /**
-     * 
+     * Lorsqu'on tape sur la touche
      * @param input 
      * @param event 
      */
     private noteOn(input: Input, event: InputEventNoteon) {
-        const code = event.note.octave*13 + this.pianoKeys.indexOf(event.note.name);
+        const code = event.note.octave*WebMidiService.PIANO_KEYS.length + WebMidiService.PIANO_KEYS.indexOf(event.note.name);
 
         if(!this.currentNotes.some(cNote => cNote.code === code)){
             this.currentNotes.push({
                 code, 
                 name:event.note.name, 
                 octave: event.note.octave
-            })
+            });
+
+            this.noteOnSubject.next(this.currentNotes.concat([]));
         }
     }
 
     /**
-     * 
+     *  Lorsqu'on retire son doight de la touche
      * @param input 
      * @param event 
      */
     private noteOff(input: Input, event: InputEventNoteoff) {
-        const code = event.note.octave*13 + this.pianoKeys.indexOf(event.note.name);
+        const code = event.note.octave*WebMidiService.PIANO_KEYS.length + WebMidiService.PIANO_KEYS.indexOf(event.note.name);
 
         const index = this.currentNotes.findIndex(cNote => cNote.code === code);
         if(index > -1){
-            const removed = this.currentNotes.splice(index, 1);
+            this.currentNotes.splice(index, 1);
         }
     }
 

@@ -2,6 +2,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction:column;
+    top: 70px;
+    bottom: 70px;
+}
+
+.controls{
+    padding: 0px 30px 0 30px;
+    width: calc(100% - 90px);
+}
+
+.piano-selection{
+    width:calc(100% - 100px);
+    margin-top: 10px;;
 }
 
 .mt-container {
@@ -9,11 +22,13 @@
     height: 260px;
     overflow: hidden;
     margin: 10px;
+    margin-bottom: 0;
 }
 
 .mt-container>div {
     /*width: 10000px;*/
-    height: 120px;
+    //height: 120px;
+    height:300px;
     white-space: nowrap;
 }
 
@@ -25,8 +40,22 @@
     margin: 5px;
 }
 
+.control + .control{
+    margin-top:20px;
+}
+.control{
+    padding: 2px 20px;
+}
+
+.accordion-details{
+    display: flex;
+    flex-direction: column;
+    
+
+}
+
 .scroll {
-    transition: transform 10s linear, opacity 0.5s ease-out, fill 0.2s linear;
+    //transition: transform 10s linear, opacity 0.5s ease-out, fill 0.2s linear;
     /*animation: mtanimation 10s linear, opacity 0.5s ease-out, fill 0.2s linear;*/
 }
 
@@ -48,10 +77,25 @@
 
 .limit-bar{
     border-left: 1px solid red;
-    height: 200px !important;
+    height: 222px !important;
     position: absolute;
     margin-left: 80px;
     margin-top: 15px;
+}
+.time{
+    position: absolute;
+    top: 73px;
+    right: 48px;
+}
+
+
+.app-fab{
+    position: fixed !important;
+    bottom: 30px;
+    right: 40px;
+}
+.secondary-fab{
+    right:120px;
 }
 
 @keyframes mtanimation {
