@@ -51,7 +51,6 @@ export class AppVexFlow{
     }
 
     static from(selectorContainer:string, width:number, height:number) : AppVexFlow{
-        console.log('new AppVexFlow',{width,height});
         const VF = Vex.Flow;
 
         const div :any = document.querySelector(selectorContainer);
