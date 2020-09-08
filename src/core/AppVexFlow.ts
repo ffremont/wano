@@ -23,7 +23,8 @@ export class AppVexFlow{
     duration = 10;
     width:number;
     height:number;
-    static LIMIT_LEFT = 350;
+    //static LIMIT_LEFT = 350;
+    static LIMIT_LEFT = 20;
 
     context : IRenderContext;
     tickContext: Vex.Flow.TickContext;
@@ -34,8 +35,9 @@ export class AppVexFlow{
     visibleNotesGroups:VisibleNotes[] = [];
 
     classes = {
-        scrolling: () => `transform: translate(-${this.width - AppVexFlow.LIMIT_LEFT}px, 0);`,
-        scroll: (duration:number) => `animation: mtanimation ${duration * (1 + (AppVexFlow.LIMIT_LEFT + 135)/this.width)}s linear, opacity 0.5s ease-out, fill 0.2s linear;`,
+            scrolling: () => `transform: translate(-${this.width - AppVexFlow.LIMIT_LEFT}px, 0);`,
+        //scroll: (duration:number) => `animation: mtanimation ${duration * (1 + (AppVexFlow.LIMIT_LEFT + 135)/this.width)}s linear, opacity 0.5s ease-out, fill 0.2s linear;`,
+        scroll: (duration:number) => `animation: mtanimation ${duration}s linear, opacity 0.5s ease-out, fill 0.2s linear;`,
         tooSlow: () => ''//`transform: translateY(5px);`
     }
 
@@ -52,12 +54,13 @@ export class AppVexFlow{
 
     static from(selectorContainer:string, width:number, height:number) : AppVexFlow{
         const VF = Vex.Flow;
+        console.log('width',width);
 
         const div :any = document.querySelector(selectorContainer);
         
         const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 
-        renderer.resize(width, height);
+        //renderer.resize(width, height);
         const context = renderer.getContext();
 
         const tickContext = new VF.TickContext();
@@ -67,7 +70,8 @@ export class AppVexFlow{
 
         const faStave = new VF.Stave(10, 120, 10000).addClef('bass');
         faStave.setContext(context).draw();
-        tickContext.preFormat().setX(width - 330);
+        //tickContext.preFormat().setX(width - 330);
+        tickContext.preFormat().setX(width - 120);
 
         return new AppVexFlow({
             context, tickContext,solStave, faStave, width, selectorContainer,height
@@ -93,7 +97,6 @@ export class AppVexFlow{
      */
     public show(code:number, key: Keys = Keys.SOL){
         const note = this.noteFromCode(code);
-        console.log('AppVexFlow > show',code,note);
         const staveNote = this.newNote(note, key);
         this.displayStaveNote(staveNote, note,key);
     }

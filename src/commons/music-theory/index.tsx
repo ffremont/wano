@@ -32,12 +32,30 @@ interface Expectation {
 const LOCAL_STORAGE_CTRL_PREF = 'wano-controls-prefs';
 const LOCAL_STORAGE_SCORES = 'wano-scores';
 const MusicTheory = (props: any) => {
+    const config: any = {
+        maxTimeBetweenNote: 5,
+        defaultDurationOfExecution : 5,//seconds
+        
+        fa: {
+            amplitude: {
+                min: [30, 52],
+                max: [26, 56]
+            }
+        },
+        sol: {
+            amplitude: {
+                min: [52, 70],
+                max: [44, 78]
+            }
+        }
+    };
+
     const [expanded, setExpanded] = useState(true);
     const [execution, setExecution] = useState(false);
     const [openScore, setOpenScore] = useState(false);
     const [scores, setScores] = useState<HumainScore[]>([]);
     const [duration] = useState(10);
-    const [progress, setProgress] = useState(100);
+    const [progress, setProgress] = useState(config.defaultDurationOfExecution);
     const [pianos, setPianos] = useState<MidiPiano[]>([]);
     const [piano, setPiano] = useState('');
     const [controls, setControls] = useState({
@@ -60,22 +78,7 @@ const MusicTheory = (props: any) => {
     let endExecutionTimer: any = useRef();
     let appVexFlow: any = useRef<AppVexFlow>();
 
-    const config: any = {
-        maxTimeBetweenNote: 5,
-
-        fa: {
-            amplitude: {
-                min: [30, 52],
-                max: [26, 56]
-            }
-        },
-        sol: {
-            amplitude: {
-                min: [52, 70],
-                max: [44, 78]
-            }
-        }
-    };
+    
 
     /**
      * Pause du défilement
@@ -142,14 +145,14 @@ const MusicTheory = (props: any) => {
         goodResponses.current = [];
 
         setExecution(true);
-        setProgress(100);
+        setProgress(config.defaultDurationOfExecution);
         if (localStorage) localStorage.setItem(LOCAL_STORAGE_CTRL_PREF, JSON.stringify(controls));
 
         endExecutionTimer.current = setTimeout(() => {
             stop();
-        }, progress*1000);
+        }, config.defaultDurationOfExecution*1000);
         clockPeriodicTimer.current = setInterval(() => {
-            setProgress( progress => progress -1 );
+            setProgress( (progress:number) => progress -1 );
         },1000);
         
         generatorOfNotesPeriodTimer.current = setInterval(() => generateNotes(), timelapsBetweenNote())
@@ -157,6 +160,7 @@ const MusicTheory = (props: any) => {
             const nodes: any = document.querySelectorAll('.scroll:not(.hide)') || [];
             if ([...nodes].some(n => n.getBoundingClientRect().x < 122)) {
                 scrollPause();
+                debugger;
             }
         }, 70);
     }
@@ -174,12 +178,17 @@ const MusicTheory = (props: any) => {
         if (endExecutionTimer.current) clearTimeout(endExecutionTimer.current);
         setExecution(false);
         setProgress(0);
-        setScores(scores.concat([{
+        const newScores = scores.concat([])
+        newScores.unshift({
             at: (new Date()).getTime(),
-            value: Math.round(goodResponses.current.length / theoricNumberOfNotes) * 100
-        }]));
+            value: Math.round((goodResponses.current.length / theoricNumberOfNotes) * 100)
+        });
+        setScores(newScores);
         setOpenScore(true);
         appVexFlow.current = AppVexFlow.reset(appVexFlow.current);
+
+        if(localStorage)
+            localStorage.setItem(LOCAL_STORAGE_SCORES, JSON.stringify(newScores));
     };
 
     React.useEffect(() => {
@@ -187,7 +196,7 @@ const MusicTheory = (props: any) => {
         expected.current = [];
         generatorOfNotesPeriodTimer.current = null;
         changeDetectorPeriodTimer.current = null;
-        appVexFlow.current = AppVexFlow.from('.mt-container .here', window.screen.width, window.screen.height);
+        appVexFlow.current = AppVexFlow.from('.mt-container .here', window.innerWidth, window.innerHeight);
         appVexFlow.current.duration = duration
 
         if (localStorage && localStorage.getItem(LOCAL_STORAGE_CTRL_PREF))

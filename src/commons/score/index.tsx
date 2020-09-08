@@ -32,8 +32,8 @@ const Score = (props: any) => {
       <DialogTitle id="simple-dialog-title">Scores</DialogTitle>
 
       <div className="scores-content">
-      <TableContainer component={Paper}>
-      <Table aria-label="simple table">
+      <TableContainer className="my-table-container" component={Paper}>
+      <Table stickyHeader aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell>Le</TableCell>
