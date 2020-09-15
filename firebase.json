@@ -1,7 +1,7 @@
 {
-  "hosting": {
-    "site":"niortweb",
+  "hosting": [{
     "public": "build",
+    "site":"how-to-use-firebase-hosting",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -13,5 +13,5 @@
         "destination": "/index.html"
       }
     ]
-  }
+  }]
 }
