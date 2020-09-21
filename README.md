@@ -2,6 +2,9 @@
 Cette application d'entrainement au piano vous permettra d'améliorer votre lecture de notes ainsi que la mobilité sur le clavier.
 Les exercices se déroulent sur le clavier en le branchant en USB. 
 
+### Accessible en ligne
+[Disponible sur firebase Hosting](https://workout-piano.web.app/)
+
 ### `npm start`
 
 Runs the app in the development mode.<br />
