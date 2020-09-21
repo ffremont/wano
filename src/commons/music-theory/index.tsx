@@ -34,7 +34,7 @@ const LOCAL_STORAGE_SCORES = 'wano-scores';
 const MusicTheory = (props: any) => {
     const config: any = {
         maxTimeBetweenNote: 5,
-        defaultDurationOfExecution : 10,//seconds
+        defaultDurationOfExecution : 100,//seconds
         
         fa: {
             amplitude: {
@@ -146,6 +146,7 @@ const MusicTheory = (props: any) => {
     const start = () => {
         startExecutionAtTs.current = (new Date()).getTime();
         goodResponses.current = [];
+        expected.current = [];
 
         setExecution(true);
         setProgress(config.defaultDurationOfExecution);

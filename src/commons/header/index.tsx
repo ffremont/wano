@@ -15,7 +15,12 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         title: {
             flexGrow: 1,
+            fontFamily: 'Poppins, sans-serif',
+            fontSize: '220%'
         },
+        subTitle:{
+            fontSize:'40%'
+        }
     }),
 );
 
@@ -27,7 +32,7 @@ const Header = (props: any) => {
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" className={classes.title}>
-                        wano
+                        wano <span className={classes.subTitle}>Entraînez-vous !</span>
                     </Typography>
                     
                 </Toolbar>
