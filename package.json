@@ -26,7 +26,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "deploy":"firebase deploy --only hosting:how-hosting --project=niortweb"
+    "deploy":"firebase deploy --only hosting:workout-piano --project my-fun-project"
   },
   "eslintConfig": {
     "extends": "react-app"

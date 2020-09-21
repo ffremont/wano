@@ -34,7 +34,7 @@ const LOCAL_STORAGE_SCORES = 'wano-scores';
 const MusicTheory = (props: any) => {
     const config: any = {
         maxTimeBetweenNote: 5,
-        defaultDurationOfExecution : 5,//seconds
+        defaultDurationOfExecution : 10,//seconds
         
         fa: {
             amplitude: {
@@ -113,11 +113,11 @@ const MusicTheory = (props: any) => {
 
         let solWeight = 1, faWeight = 1;
         if(controls.repartition > 0){
-            // fa
-            faWeight = controls.repartition;
-        }else if (controls.repartition < 0){
             // sol
-            solWeight = Math.abs(controls.repartition);
+            solWeight = controls.repartition;
+        }else if (controls.repartition < 0){
+            // fa
+            faWeight = Math.abs(controls.repartition);
         }
 
         const key: any = randNoteService.alea(
@@ -133,6 +133,9 @@ const MusicTheory = (props: any) => {
         });
     }
 
+    /**
+     * Ms entre 2 notes
+     */
     const timelapsBetweenNote = () :number => {
         return config.maxTimeBetweenNote * 1000 * (controls.speed / 11);
     }
@@ -155,6 +158,7 @@ const MusicTheory = (props: any) => {
             setProgress( (progress:number) => progress -1 );
         },1000);
         
+        scrollPlay();
         generatorOfNotesPeriodTimer.current = setInterval(() => generateNotes(), timelapsBetweenNote())
         changeDetectorPeriodTimer.current = setInterval(() => {
             const nodes: any = document.querySelectorAll('.scroll:not(.hide)') || [];

@@ -1,7 +1,7 @@
 {
-  "hosting": [{
+  "hosting": {
     "public": "build",
-    "site":"how-to-use-firebase-hosting",
+    "site":"workout-piano",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -13,5 +13,5 @@
         "destination": "/index.html"
       }
     ]
-  }]
+  }
 }

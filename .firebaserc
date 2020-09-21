@@ -1,14 +1,5 @@
 {
   "projects": {
-    "default": "niortweb"
-  },
-  "targets": {
-    "niortweb": {
-      "hosting": {
-        "how-hosting": [
-          "how-to-use-firebase-hosting"
-        ]
-      }
-    }
+    "default": "my-fun-project"
   }
 }
