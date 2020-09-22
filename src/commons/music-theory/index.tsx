@@ -9,7 +9,6 @@ import randNoteService from '../../core/RandNote.service';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
-import NativeSelect from '@material-ui/core/NativeSelect';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
@@ -20,8 +19,10 @@ import { Fab } from '@material-ui/core';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import CloseIcon from '@material-ui/icons/Close';
 import CircularProgressWithLabel from '../circular-progress-with-label';
-import {HumainScore} from '../HumainScore';
+import { HumainScore } from '../HumainScore';
 import Score from '../score';
+import Select from '@material-ui/core/Select';
+import NativeSelect from '@material-ui/core/NativeSelect';
 //import SchoolIcon from '@material-ui/icons/School';
 
 interface Expectation {
@@ -33,9 +34,9 @@ const LOCAL_STORAGE_CTRL_PREF = 'wano-controls-prefs';
 const LOCAL_STORAGE_SCORES = 'wano-scores';
 const MusicTheory = (props: any) => {
     const config: any = {
-        maxTimeBetweenNote: 5,
-        defaultDurationOfExecution : 100,//seconds
-        
+        maxTimeBetweenNote: 3,
+        defaultDurationOfExecution: 20,//seconds
+
         fa: {
             amplitude: {
                 min: [30, 52],
@@ -62,7 +63,7 @@ const MusicTheory = (props: any) => {
         speed: 1,
         amplitude: 2,
         repartition: 0,
-        chord: 1
+        chord: 0, // majeur 3-4 et mineur 4-3
     });
 
     let subNoteOn = useRef<Subscription>();
@@ -77,7 +78,6 @@ const MusicTheory = (props: any) => {
     let changeDetectorPeriodTimer: any = useRef();
     let endExecutionTimer: any = useRef();
     let appVexFlow: any = useRef<AppVexFlow>();
-
     
 
     /**
@@ -112,20 +112,34 @@ const MusicTheory = (props: any) => {
         console.log('generateNotes');
 
         let solWeight = 1, faWeight = 1;
-        if(controls.repartition > 0){
+        if (controls.repartition > 0) {
             // sol
             solWeight = controls.repartition;
-        }else if (controls.repartition < 0){
+        } else if (controls.repartition < 0) {
             // fa
             faWeight = Math.abs(controls.repartition);
         }
 
+        const wantGenerateChord = randNoteService.alea(
+            (new Array(controls.chord)).fill('chord')
+                .concat((new Array(11 - controls.chord)).fill('note'))
+        ) === 'chord';
         const key: any = randNoteService.alea(
             (new Array(solWeight)).fill('sol')
                 .concat((new Array(faWeight)).fill('fa'))
         );
         const confKey = config[key.toLowerCase()] || {};
-        const notes = [randNoteService.noteBetween(confKey.amplitude.min, confKey.amplitude.max, controls.amplitude / 10)];
+
+        let notes = [randNoteService.noteBetween(confKey.amplitude.min, confKey.amplitude.max, controls.amplitude / 10)];
+        if(wantGenerateChord){
+            const firstNote = randNoteService.noteBetween(confKey.amplitude.min, confKey.amplitude.max, controls.amplitude / 20);
+            if(randNoteService.alea(['major','minor']) === 'major'){
+                notes = [firstNote, firstNote+3, firstNote+3+4];
+            }else{
+                notes = [firstNote, firstNote+4, firstNote+3+4];
+            }
+        }     
+        
         notes.forEach(note => appVexFlow.current.show(note, key === 'sol' ? Keys.SOL : Keys.FA));
         expected.current.push({
             notes,
@@ -136,7 +150,7 @@ const MusicTheory = (props: any) => {
     /**
      * Ms entre 2 notes
      */
-    const timelapsBetweenNote = () :number => {
+    const timelapsBetweenNote = (): number => {
         return config.maxTimeBetweenNote * 1000 * (controls.speed / 11);
     }
 
@@ -154,18 +168,17 @@ const MusicTheory = (props: any) => {
 
         endExecutionTimer.current = setTimeout(() => {
             stop();
-        }, config.defaultDurationOfExecution*1000);
+        }, config.defaultDurationOfExecution * 1000);
         clockPeriodicTimer.current = setInterval(() => {
-            setProgress( (progress:number) => progress -1 );
-        },1000);
-        
+            setProgress((progress: number) => progress - 1);
+        }, 1000);
+
         scrollPlay();
         generatorOfNotesPeriodTimer.current = setInterval(() => generateNotes(), timelapsBetweenNote())
         changeDetectorPeriodTimer.current = setInterval(() => {
             const nodes: any = document.querySelectorAll('.scroll:not(.hide)') || [];
             if ([...nodes].some(n => n.getBoundingClientRect().x < 122)) {
                 scrollPause();
-                debugger;
             }
         }, 70);
     }
@@ -175,7 +188,7 @@ const MusicTheory = (props: any) => {
      */
     const stop = () => {
         const deltaTs = (new Date()).getTime() - startExecutionAtTs.current;
-        const theoricNumberOfNotes = Math.floor( deltaTs / timelapsBetweenNote() );
+        const theoricNumberOfNotes = Math.floor(deltaTs / timelapsBetweenNote());
 
         if (generatorOfNotesPeriodTimer.current) clearInterval(generatorOfNotesPeriodTimer.current);
         if (clockPeriodicTimer.current) clearInterval(clockPeriodicTimer.current);
@@ -192,7 +205,7 @@ const MusicTheory = (props: any) => {
         setOpenScore(true);
         appVexFlow.current = AppVexFlow.reset(appVexFlow.current);
 
-        if(localStorage)
+        if (localStorage)
             localStorage.setItem(LOCAL_STORAGE_SCORES, JSON.stringify(newScores));
     };
 
@@ -263,14 +276,14 @@ const MusicTheory = (props: any) => {
             </div>)}
 
 
-            {execution &&(<div className="time">
+            {execution && (<div className="time">
                 <CircularProgressWithLabel value={progress} />
             </div>)}
             <div className={`mt-container`}>
                 <div className="limit-bar"></div>
                 <div className="here"></div>
 
-            </div> 
+            </div>
             {piano && (<div className="controls">
                 <Accordion expanded={expanded} onChange={(e, isExpanded) => setExpanded(isExpanded)}>
                     <AccordionSummary
@@ -310,6 +323,23 @@ const MusicTheory = (props: any) => {
                                 max={10}
                             />
                         </div>
+                        <div className="control">
+                        <Typography id="discrete-slider-chord" gutterBottom>
+                                Accords
+                        </Typography>
+                            <Slider
+                                value={controls.chord}
+                                aria-labelledby="discrete-slider-chord"
+                                valueLabelDisplay="auto"
+
+                                step={1}
+                                onChange={(e, v: any) => setControls({ ...controls, chord: v })}
+                                marks={[{ value: 0, label: 'Peu' }, { value: 10, label: `Beaucoup` }]}
+                                min={0}
+                                max={10}
+                            />
+                        </div>
+
                         <div className="control">
                             <Typography id="discrete-slider-rep" gutterBottom>
                                 Répartition main gauche / droite

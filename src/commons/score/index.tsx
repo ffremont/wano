@@ -28,7 +28,7 @@ const Score = (props: any) => {
   };
 
   return (
-    <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" className="scores-modal" open={openFlag}>
+    <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" fullWidth={true} className="scores-modal" open={openFlag}>
       <DialogTitle id="simple-dialog-title">Scores</DialogTitle>
 
       <div className="scores-content">
