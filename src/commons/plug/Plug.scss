@@ -1,0 +1,33 @@
+.centered{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-direction: column;
+}
+
+.large-avatar{
+    width: 100px !important;
+    height:100px !important;
+
+    svg{
+        font-size: 362%;
+    }
+}
+
+.plug-content{
+    max-width: 200px;
+    padding-bottom: 2px;
+
+}
+
+.my-progress{
+    width:calc(100%);
+    position: absolute !important;
+    bottom:0;
+}
+
+.text{
+    margin-top:30px !important;
+    text-align:center;
+}

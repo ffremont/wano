@@ -21,21 +21,19 @@ import CloseIcon from '@material-ui/icons/Close';
 import CircularProgressWithLabel from '../circular-progress-with-label';
 import { HumainScore } from '../HumainScore';
 import Score from '../score';
-import Select from '@material-ui/core/Select';
 import NativeSelect from '@material-ui/core/NativeSelect';
-//import SchoolIcon from '@material-ui/icons/School';
+import ReplayIcon from '@material-ui/icons/Replay';
+import { LOCAL_STORAGE_CTRL_PREF, LOCAL_STORAGE_SCORES } from '../../App';
 
 interface Expectation {
     notes: number[];
     key: Keys
 }
 
-const LOCAL_STORAGE_CTRL_PREF = 'wano-controls-prefs';
-const LOCAL_STORAGE_SCORES = 'wano-scores';
 const MusicTheory = (props: any) => {
     const config: any = {
         maxTimeBetweenNote: 3,
-        defaultDurationOfExecution: 20,//seconds
+        defaultDurationOfExecution: 100,//seconds
 
         fa: {
             amplitude: {
@@ -71,14 +69,13 @@ const MusicTheory = (props: any) => {
     let expected = useRef<Expectation[]>([]);
     let scrollIsRunning = useRef<boolean>(true);
     let startExecutionAtTs = useRef<number>(0);
-    let timePianos: any = useRef();
     let goodResponses = useRef<number[]>([]);
     let clockPeriodicTimer: any = useRef();
     let generatorOfNotesPeriodTimer: any = useRef();
     let changeDetectorPeriodTimer: any = useRef();
     let endExecutionTimer: any = useRef();
     let appVexFlow: any = useRef<AppVexFlow>();
-    
+
 
     /**
      * Pause du défilement
@@ -111,13 +108,16 @@ const MusicTheory = (props: any) => {
         if (!scrollIsRunning.current) return;
         console.log('generateNotes');
 
-        let solWeight = 1, faWeight = 1;
+        let solWeight = 0, faWeight = 0;
         if (controls.repartition > 0) {
             // sol
             solWeight = controls.repartition;
         } else if (controls.repartition < 0) {
             // fa
             faWeight = Math.abs(controls.repartition);
+        } else {
+            solWeight = 1;
+            faWeight = solWeight;
         }
 
         const wantGenerateChord = randNoteService.alea(
@@ -131,15 +131,15 @@ const MusicTheory = (props: any) => {
         const confKey = config[key.toLowerCase()] || {};
 
         let notes = [randNoteService.noteBetween(confKey.amplitude.min, confKey.amplitude.max, controls.amplitude / 10)];
-        if(wantGenerateChord){
+        if (wantGenerateChord) {
             const firstNote = randNoteService.noteBetween(confKey.amplitude.min, confKey.amplitude.max, controls.amplitude / 20);
-            if(randNoteService.alea(['major','minor']) === 'major'){
-                notes = [firstNote, firstNote+3, firstNote+3+4];
-            }else{
-                notes = [firstNote, firstNote+4, firstNote+3+4];
+            if (randNoteService.alea(['major', 'minor']) === 'major') {
+                notes = [firstNote, firstNote + 3, firstNote + 3 + 4];
+            } else {
+                notes = [firstNote, firstNote + 4, firstNote + 3 + 4];
             }
-        }     
-        
+        }
+
         notes.forEach(note => appVexFlow.current.show(note, key === 'sol' ? Keys.SOL : Keys.FA));
         expected.current.push({
             notes,
@@ -207,6 +207,11 @@ const MusicTheory = (props: any) => {
 
         if (localStorage)
             localStorage.setItem(LOCAL_STORAGE_SCORES, JSON.stringify(newScores));
+
+
+        if (props.played) {
+            props.played();
+        }
     };
 
     React.useEffect(() => {
@@ -223,8 +228,11 @@ const MusicTheory = (props: any) => {
             setScores(JSON.parse(localStorage.getItem(LOCAL_STORAGE_SCORES) || '[]'));
 
         subPiano.current = webMidiService.pianoSubject.subscribe((p: MidiPiano[]) => {
-            if (timePianos.current) clearTimeout(timePianos);
-            timePianos.current = setTimeout(() => setPianos(p), 400);
+            if (props.pianos) {
+                props.pianos(p);
+            }
+
+            setTimeout(() => setPianos(p), 400);
         });
         subNoteOn.current = webMidiService.noteOnSubject.subscribe((midiNotes: MidiNote[]) => {
             if (!expected.current?.length) return;
@@ -249,8 +257,9 @@ const MusicTheory = (props: any) => {
             if (generatorOfNotesPeriodTimer.current !== null) clearInterval(generatorOfNotesPeriodTimer.current);
             if (changeDetectorPeriodTimer.current !== null) clearInterval(changeDetectorPeriodTimer.current);
             if (clockPeriodicTimer.current) clearInterval(clockPeriodicTimer.current);
+
         }
-    }, [piano, pianos]);
+    }, [piano]);
 
     return (
         <div className="music-theory">
@@ -324,7 +333,7 @@ const MusicTheory = (props: any) => {
                             />
                         </div>
                         <div className="control">
-                        <Typography id="discrete-slider-chord" gutterBottom>
+                            <Typography id="discrete-slider-chord" gutterBottom>
                                 Accords
                         </Typography>
                             <Slider
@@ -361,13 +370,19 @@ const MusicTheory = (props: any) => {
 
                 <Score open={openScore} scores={scores} onClose={() => setOpenScore(false)}></Score>
 
+
                 {piano && execution && (<Fab color="secondary" className="app-fab" onClick={() => stop()} aria-label="stop">
                     <CloseIcon />
                 </Fab>)}
                 {piano && !execution && (<Fab color="secondary" className="app-fab" onClick={() => start()} aria-label="play">
                     <PlayArrowIcon />
                 </Fab>)}
+
+
             </div>)}
+            {!piano && (<Fab color="primary" onClick={() => (window as any).location.reload()} className="app-fab">
+                <ReplayIcon />
+            </Fab>)}
         </div>
     );
 }

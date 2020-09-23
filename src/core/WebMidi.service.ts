@@ -7,6 +7,7 @@ export interface MidiPiano{
 }
 
 export interface MidiNote{
+    deviceId:string;
     code:number;
     name:string;
     octave: number;
@@ -50,10 +51,11 @@ export class WebMidiService {
             } else {
                 WebMidi.addListener("connected", (e)  => {
                     if (e.port.type === 'input') {
-                        this.pianos.push({
-                            label: `${e.port.name}${e.port.manufacturer ? ' / '+e.port.manufacturer : ''}`,
-                            id: e.port.id
-                        });
+                        if(!this.pianos.some(p => p.id === e.port.id))
+                            this.pianos.push({
+                                label: `${e.port.name}${e.port.manufacturer ? ' / '+e.port.manufacturer : ''}`,
+                                id: e.port.id
+                            });
                         this.pianoSubject.next(this.pianos);
 
                         e.port.addListener("noteon", "all", (event: InputEventNoteon) => {
@@ -81,6 +83,7 @@ export class WebMidiService {
 
         if(!this.currentNotes.some(cNote => cNote.code === code)){
             this.currentNotes.push({
+                deviceId: input.id,
                 code, 
                 name:event.note.name, 
                 octave: event.note.octave
@@ -98,7 +101,7 @@ export class WebMidiService {
     private noteOff(input: Input, event: InputEventNoteoff) {
         const code = event.note.octave*WebMidiService.PIANO_KEYS.length + WebMidiService.PIANO_KEYS.indexOf(event.note.name);
 
-        const index = this.currentNotes.findIndex(cNote => cNote.code === code);
+        const index = this.currentNotes.findIndex(cNote => (cNote.code === code) && (cNote.deviceId === input.id));
         if(index > -1){
             this.currentNotes.splice(index, 1);
         }

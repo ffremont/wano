@@ -6,7 +6,7 @@ const Player = (props: any) => {
     
   return (
      <div>
-       <MusicTheory></MusicTheory>
+       <MusicTheory pianos={(p:any) => props.pianos(p)}></MusicTheory>
      </div>
   );
 }

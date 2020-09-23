@@ -44,8 +44,11 @@
     <script>
       window.appversion = "%REACT_APP_VERSION%";
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker
-          .register("/my-sw.js");
+        navigator.serviceWorker.register('/my-sw.js', {
+          scope: '/'
+        })
+        .then(() => console.log('sw registered'))
+        .catch(e => console.error(e));
       }
     </script>
   </body>
