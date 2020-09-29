@@ -28,7 +28,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && npx workbox generateSW",
-    "deploy": "npm run build  && firebase deploy --only hosting:workout-piano",
+    "deploy": "npm version patch && npm run build  && firebase deploy --only hosting:workout-piano",
     "demo": "npx http-server build"
   },
   "eslintConfig": {
