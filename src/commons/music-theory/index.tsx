@@ -158,11 +158,13 @@ const MusicTheory = (props: any) => {
      * Démarre le jeu
      */
     const start = () => {
+        (window as any).scroll(0,0);
         startExecutionAtTs.current = (new Date()).getTime();
         goodResponses.current = [];
         expected.current = [];
 
         setExecution(true);
+        setExpanded(false);
         setProgress(config.defaultDurationOfExecution);
         if (localStorage) localStorage.setItem(LOCAL_STORAGE_CTRL_PREF, JSON.stringify(controls));
 
@@ -186,7 +188,7 @@ const MusicTheory = (props: any) => {
     /**
      * Arrêt via le bouton stop
      */
-    const stop = () => {
+    const stop = (force = false) => {
         const deltaTs = (new Date()).getTime() - startExecutionAtTs.current;
         const theoricNumberOfNotes = Math.floor(deltaTs / timelapsBetweenNote());
 
@@ -196,18 +198,21 @@ const MusicTheory = (props: any) => {
         if (endExecutionTimer.current) clearTimeout(endExecutionTimer.current);
         setExecution(false);
         setProgress(0);
-        const newScores = scores.concat([])
-        newScores.unshift({
-            at: (new Date()).getTime(),
-            value: Math.round((goodResponses.current.length / theoricNumberOfNotes) * 100)
-        });
-        setScores(newScores);
-        setOpenScore(true);
+
+        if (!force) {
+            const newScores = scores.concat([])
+            newScores.unshift({
+                at: (new Date()).getTime(),
+                value: Math.round((goodResponses.current.length / theoricNumberOfNotes) * 100)
+            });
+            setScores(newScores);
+            setOpenScore(true);
+
+            if (localStorage)
+                localStorage.setItem(LOCAL_STORAGE_SCORES, JSON.stringify(newScores));
+        }
+
         appVexFlow.current = AppVexFlow.reset(appVexFlow.current);
-
-        if (localStorage)
-            localStorage.setItem(LOCAL_STORAGE_SCORES, JSON.stringify(newScores));
-
 
         if (props.played) {
             props.played();
@@ -371,7 +376,7 @@ const MusicTheory = (props: any) => {
                 <Score open={openScore} scores={scores} onClose={() => setOpenScore(false)}></Score>
 
 
-                {piano && execution && (<Fab color="secondary" className="app-fab" onClick={() => stop()} aria-label="stop">
+                {piano && execution && (<Fab color="secondary" className="app-fab" onClick={() => stop(true)} aria-label="stop">
                     <CloseIcon />
                 </Fab>)}
                 {piano && !execution && (<Fab color="secondary" className="app-fab" onClick={() => start()} aria-label="play">
