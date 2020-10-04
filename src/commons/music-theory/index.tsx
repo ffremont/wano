@@ -203,11 +203,11 @@ const MusicTheory = (props: any) => {
 
         if (!force) {
             const newScores = scores.concat([]);
-            const score = Math.round(((theoricNumberOfNotes - Math.abs(tries.current - theoricNumberOfNotes))/theoricNumberOfNotes)*100)
+            const score = Math.round(( (theoricNumberOfNotes - tries.current)/theoricNumberOfNotes)*100)
 
             newScores.unshift({
                 at: (new Date()).getTime(),
-                value: score
+                value: score < 0 ? 0 : score
             });
             setScores(newScores);
             setOpenScore(true);
@@ -245,7 +245,7 @@ const MusicTheory = (props: any) => {
         });
         subNoteOn.current = webMidiService.noteOnSubject.subscribe((midiNotes: MidiNote[]) => {
             if (!expected.current?.length) return;
-            tries.current = tries.current + 1;
+            
             if (expected.current[0].notes.every((n: any) => midiNotes.some(midiNote => midiNote.code === n))) {
                 // la liste des touches enfoncées correspond à l'attendu
                 console.log('bien joué !');
@@ -253,6 +253,8 @@ const MusicTheory = (props: any) => {
                 goodResponses.current.push((new Date()).getTime());
                 appVexFlow.current.erase(aShift.notes, aShift.key);
                 scrollPlay();
+            }else{
+                tries.current = tries.current + 1;
             }
         });
         webMidiService.enable();
