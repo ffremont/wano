@@ -73,7 +73,7 @@ const Score = (props: any) => {
       </AppBar>
 
       <div className="scores-content">
-        <Bar height={70} legend={{position:'bottom'}} data={data}/>
+        <Bar height={70} legend={{display:false,position:'bottom'}} data={data}/>
 
         <TableContainer className="my-table-container" component={Paper}>
           <Table stickyHeader aria-label="simple table">
