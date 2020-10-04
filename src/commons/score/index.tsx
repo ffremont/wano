@@ -28,10 +28,12 @@ const Score = (props: any) => {
     setRows(scores || []);
 
     const groupByDay :any= {};
-    for(let i = 0; i<scores.length; i++){
-      const date = (new Date(scores[i].at)).toLocaleDateString();
+    const rScores = scores.concat([]);
+    rScores.reverse();
+    for(let i = 0; i<rScores.length; i++){
+      const date = (new Date(rScores[i].at)).toLocaleDateString();
       groupByDay[date] = (groupByDay[date] || []);
-      groupByDay[date].push(scores[i].value);
+      groupByDay[date].push(rScores[i].value);
     }
 
     const average = (arr:any) => arr.reduce( ( p:any, c:any ) => p + c, 0 ) / arr.length;
