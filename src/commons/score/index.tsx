@@ -19,12 +19,7 @@ import { Bar } from 'react-chartjs-2';
 
 const Score = (props: any) => {
   const [openFlag, setOpenFlag] = React.useState(false);
-  const [data, setData] = React.useState({
-    datasets: [{
-      label:'x',
-      data:[5]
-    }]
-  });
+  const [data, setData] = React.useState({});
   const [rows, setRows] = React.useState<HumainScore[]>([]);
   const { onClose, open, scores } = props;
 
@@ -41,13 +36,17 @@ const Score = (props: any) => {
 
     const average = (arr:any) => arr.reduce( ( p:any, c:any ) => p + c, 0 ) / arr.length;
     
+    /*setData({
+      datasets : 
+    })*/
     setData({
-      datasets : Object.keys(groupByDay).map((att:any) => {
-        return {
-          label: att,
-          data: [average(groupByDay[att])]
-        }
-      })
+      labels: Object.keys(groupByDay),
+      datasets:[{
+        label:'scores',
+        data:Object.keys(groupByDay).map((att:any) => {
+          return average(groupByDay[att])
+        })
+      }]
     })
     
   }, [openFlag, scores]);
