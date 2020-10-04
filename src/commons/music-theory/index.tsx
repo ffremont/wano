@@ -68,6 +68,7 @@ const MusicTheory = (props: any) => {
     let subPiano = useRef<Subscription>();
     let expected = useRef<Expectation[]>([]);
     let scrollIsRunning = useRef<boolean>(true);
+    let tries = useRef<number>(0);
     let startExecutionAtTs = useRef<number>(0);
     let goodResponses = useRef<number[]>([]);
     let clockPeriodicTimer: any = useRef();
@@ -160,6 +161,7 @@ const MusicTheory = (props: any) => {
     const start = () => {
         (window as any).scroll(0,0);
         startExecutionAtTs.current = (new Date()).getTime();
+        tries.current = 0;
         goodResponses.current = [];
         expected.current = [];
 
@@ -200,10 +202,12 @@ const MusicTheory = (props: any) => {
         setProgress(0);
 
         if (!force) {
-            const newScores = scores.concat([])
+            const newScores = scores.concat([]);
+            const score = Math.round(((theoricNumberOfNotes - Math.abs(tries.current - theoricNumberOfNotes))/theoricNumberOfNotes)*100)
+
             newScores.unshift({
                 at: (new Date()).getTime(),
-                value: Math.round((goodResponses.current.length / theoricNumberOfNotes) * 100)
+                value: score
             });
             setScores(newScores);
             setOpenScore(true);
@@ -241,6 +245,7 @@ const MusicTheory = (props: any) => {
         });
         subNoteOn.current = webMidiService.noteOnSubject.subscribe((midiNotes: MidiNote[]) => {
             if (!expected.current?.length) return;
+            tries.current = tries.current + 1;
             if (expected.current[0].notes.every((n: any) => midiNotes.some(midiNote => midiNote.code === n))) {
                 // la liste des touches enfoncées correspond à l'attendu
                 console.log('bien joué !');
