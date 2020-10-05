@@ -33,7 +33,7 @@ interface Expectation {
 const MusicTheory = (props: any) => {
     const config: any = {
         maxTimeBetweenNote: 3,
-        defaultDurationOfExecution: 100,//seconds
+        defaultDurationOfExecution: 10,//seconds
 
         fa: {
             amplitude: {
@@ -68,7 +68,7 @@ const MusicTheory = (props: any) => {
     let subPiano = useRef<Subscription>();
     let expected = useRef<Expectation[]>([]);
     let scrollIsRunning = useRef<boolean>(true);
-    let tries = useRef<number>(0);
+    let failures = useRef<number>(0);
     let startExecutionAtTs = useRef<number>(0);
     let goodResponses = useRef<number[]>([]);
     let clockPeriodicTimer: any = useRef();
@@ -84,7 +84,6 @@ const MusicTheory = (props: any) => {
     const scrollPause = () => {
         if (!scrollIsRunning.current) return;
 
-        console.log('scrollPause !');
         const el: any = document.querySelector('.mt-container');
         el.classList.add('pause');
         scrollIsRunning.current = false;
@@ -94,7 +93,6 @@ const MusicTheory = (props: any) => {
      * Lance le défilement des notes
      */
     const scrollPlay = () => {
-        console.log('scrollPlay !');
         const el: any = document.querySelector('.mt-container');
 
         el.classList.remove('pause');
@@ -107,7 +105,6 @@ const MusicTheory = (props: any) => {
      */
     const generateNotes = () => {
         if (!scrollIsRunning.current) return;
-        console.log('generateNotes');
 
         let solWeight = 0, faWeight = 0;
         if (controls.repartition > 0) {
@@ -161,7 +158,7 @@ const MusicTheory = (props: any) => {
     const start = () => {
         (window as any).scroll(0,0);
         startExecutionAtTs.current = (new Date()).getTime();
-        tries.current = 0;
+        failures.current = 0;
         goodResponses.current = [];
         expected.current = [];
 
@@ -203,11 +200,12 @@ const MusicTheory = (props: any) => {
 
         if (!force) {
             const newScores = scores.concat([]);
-            const score = Math.round(( (theoricNumberOfNotes - tries.current)/theoricNumberOfNotes)*100)
-
+            const scoreFailures = Math.round(( (theoricNumberOfNotes - failures.current)/theoricNumberOfNotes)*100);
+            const scoreSuccess = Math.round(( (goodResponses.current.length)/theoricNumberOfNotes)*100);
+            
             newScores.unshift({
                 at: (new Date()).getTime(),
-                value: score < 0 ? 0 : score
+                value: Math.round(scoreFailures + scoreSuccess) / 2
             });
             setScores(newScores);
             setOpenScore(true);
@@ -224,7 +222,6 @@ const MusicTheory = (props: any) => {
     };
 
     React.useEffect(() => {
-        console.log('Mount MusicTheory');
         expected.current = [];
         generatorOfNotesPeriodTimer.current = null;
         changeDetectorPeriodTimer.current = null;
@@ -248,19 +245,17 @@ const MusicTheory = (props: any) => {
             
             if (expected.current[0].notes.every((n: any) => midiNotes.some(midiNote => midiNote.code === n))) {
                 // la liste des touches enfoncées correspond à l'attendu
-                console.log('bien joué !');
                 let aShift: any = expected.current.shift();
                 goodResponses.current.push((new Date()).getTime());
                 appVexFlow.current.erase(aShift.notes, aShift.key);
                 scrollPlay();
             }else{
-                tries.current = tries.current + 1;
+                failures.current = failures.current + 1;
             }
         });
         webMidiService.enable();
 
         return () => {
-            console.log('Unmount MusicTheory');
             subNoteOn.current?.unsubscribe();
             subPiano.current?.unsubscribe();
 

@@ -25,8 +25,10 @@ const Score = (props: any) => {
 
   React.useEffect(() => {
     setOpenFlag(open);
-    setRows(scores || []);
+    setRows(scores || []);    
+  });
 
+  React.useEffect(() => {
     const groupByDay :any= {};
     const rScores = scores.concat([]);
     rScores.reverse();
@@ -38,9 +40,6 @@ const Score = (props: any) => {
 
     const average = (arr:any) => arr.reduce( ( p:any, c:any ) => p + c, 0 ) / arr.length;
     
-    /*setData({
-      datasets : 
-    })*/
     setData({
       labels: Object.keys(groupByDay),
       datasets:[{
