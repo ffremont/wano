@@ -33,7 +33,7 @@ interface Expectation {
 const MusicTheory = (props: any) => {
     const config: any = {
         maxTimeBetweenNote: 3,
-        defaultDurationOfExecution: 10,//seconds
+        defaultDurationOfExecution: 100,//seconds
 
         fa: {
             amplitude: {
